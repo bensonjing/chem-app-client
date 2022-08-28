@@ -3,7 +3,7 @@ import { Button, Image, StyleSheet, Text, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { ImageEditor } from "expo-image-editor";
 
-const SERVER_URL = "http://127.0.0.1:5000";
+const SERVER_URL = "https://chem-app-api.herokuapp.com";
 
 export default function App() {
   const [image, setImage] = useState(null);
@@ -11,6 +11,8 @@ export default function App() {
   const [editorVisible, setEditorVisible] = useState(false);
 
   const openCamera = async () => {
+    setResult(null);
+
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     if (!permissionResult.granted) {
       console.log("You refused to allow the app to access the camera!");
@@ -25,6 +27,8 @@ export default function App() {
   };
 
   const openPhotos = async () => {
+    setResult(null);
+
     const result = await ImagePicker.launchImageLibraryAsync();
     if (!result.cancelled) {
       setImage(result);
