@@ -5,18 +5,8 @@ import { ImageEditor } from "expo-image-editor";
 
 const SERVER_URL = "http://127.0.0.1:5000";
 
-const createFormData = (imageUri) => {
-  const data = new FormData();
-
-  data.append("photo", {
-    uri: Platform.OS === "ios" ? imageUri.replace("file://", "") : imageUri,
-  });
-
-  return data;
-};
-
 export default function App() {
-  const [imageUri, setImageUri] = useState(null);
+  const [image, setImage] = useState(null);
   const [editorVisible, setEditorVisible] = useState(false);
 
   const openCamera = async () => {
@@ -27,43 +17,52 @@ export default function App() {
     }
 
     const result = await ImagePicker.launchCameraAsync();
-    console.log(result);
     if (!result.cancelled) {
-      setImageUri(result.uri);
+      setImage(result);
       setEditorVisible(true);
     }
   };
 
   const openPhotos = async () => {
     const result = await ImagePicker.launchImageLibraryAsync();
-    console.log(result);
     if (!result.cancelled) {
-      setImageUri(result.uri);
+      setImage(result);
       setEditorVisible(true);
     }
   };
 
   const uploadPhoto = async () => {
+    const data = new FormData();
+    const file = {
+      uri: image.uri,
+      name: "userPhoto.jpg",
+      type: "image/jpg",
+    };
+    data.append("file", file);
+
     const response = await fetch(`${SERVER_URL}/pic`, {
       method: "POST",
-      body: createFormData(imageUri),
+      body: data,
     });
+
     const json = await response.json();
     console.log(json);
   };
 
   return (
     <View style={styles.container}>
-      {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
+      {image && <Image source={{ uri: image.uri }} style={styles.image} />}
       <Button title="Take Photo" onPress={openCamera} />
       <Button title="Choose from Photos" onPress={openPhotos} />
-      <Button title="Upload Photo" onPress={uploadPhoto} />
       <ImageEditor
         visible={editorVisible}
-        onCloseEditor={() => setEditorVisible(false)}
-        imageUri={imageUri}
+        onCloseEditor={() => {
+          setEditorVisible(false);
+          uploadPhoto();
+        }}
+        imageUri={image ? image.uri : null}
         onEditingComplete={(result) => {
-          setImageUri(result.uri);
+          setImage(result);
         }}
         mode="crop-only"
       />
