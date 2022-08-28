@@ -7,6 +7,7 @@ const SERVER_URL = "http://127.0.0.1:5000";
 
 export default function App() {
   const [image, setImage] = useState(null);
+  const [result, setResult] = useState(null);
   const [editorVisible, setEditorVisible] = useState(false);
 
   const openCamera = async () => {
@@ -46,14 +47,15 @@ export default function App() {
     });
 
     const json = await response.json();
-    console.log(json);
+    setResult(json["result"]);
   };
 
   return (
     <View style={styles.container}>
       {image && <Image source={{ uri: image.uri }} style={styles.image} />}
+      {result && <Text>Concentration: {result}</Text>}
       <Button title="Take Photo" onPress={openCamera} />
-      <Button title="Choose from Photos" onPress={openPhotos} />
+      <Button title="Choose from Library" onPress={openPhotos} />
       <ImageEditor
         visible={editorVisible}
         onCloseEditor={() => {
