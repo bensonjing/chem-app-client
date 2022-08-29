@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Image, StyleSheet, Text, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { ImageEditor } from "expo-image-editor";
@@ -10,6 +10,10 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [editorVisible, setEditorVisible] = useState(false);
 
+  useEffect(() => {
+    console.log(image);
+  }, [image]);
+
   const openCamera = async () => {
     setResult(null);
 
@@ -20,7 +24,9 @@ export default function App() {
     }
 
     const result = await ImagePicker.launchCameraAsync();
-    if (!result.cancelled) {
+    if (result.cancelled) {
+      setImage(null);
+    } else {
       setImage(result);
       setEditorVisible(true);
     }
@@ -30,7 +36,9 @@ export default function App() {
     setResult(null);
 
     const result = await ImagePicker.launchImageLibraryAsync();
-    if (!result.cancelled) {
+    if (result.cancelled) {
+      setImage(null);
+    } else {
       setImage(result);
       setEditorVisible(true);
     }
@@ -56,19 +64,30 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {image && <Image source={{ uri: image.uri }} style={styles.image} />}
-      {result && <Text>Concentration: {result}</Text>}
-      <Button title="Take Photo" onPress={openCamera} />
-      <Button title="Choose from Library" onPress={openPhotos} />
+      <View style={styles.imageContainer}>
+        {image && <Image source={{ uri: image.uri }} style={styles.image} />}
+      </View>
+
+      <Text style={styles.result}>Concentration: {result}</Text>
+
+      <View style={styles.buttons}>
+        <Button title="Take Photo" onPress={openCamera} style={styles.button} />
+        <Button
+          title="Choose from Library"
+          onPress={openPhotos}
+          style={styles.button}
+        />
+      </View>
+
       <ImageEditor
         visible={editorVisible}
         onCloseEditor={() => {
           setEditorVisible(false);
-          uploadPhoto();
         }}
         imageUri={image ? image.uri : null}
         onEditingComplete={(result) => {
           setImage(result);
+          uploadPhoto();
         }}
         mode="crop-only"
       />
@@ -83,8 +102,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  image: {
-    height: 200,
-    width: 200,
+  imageContainer: {
+    width: 300,
+    height: 300,
   },
+  image: {
+    flex: 1,
+    resizeMode: "contain",
+  },
+  result: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  buttons: {
+    marginTop: 100,
+  },
+  button: {},
 });
