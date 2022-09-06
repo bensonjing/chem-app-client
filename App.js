@@ -64,11 +64,15 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Antimony Meter</Text>
+
       <View style={styles.imageContainer}>
         {image && <Image source={{ uri: image.uri }} style={styles.image} />}
       </View>
 
-      <Text style={styles.result}>Concentration: {result}</Text>
+      <Text style={styles.result}>
+        Concentration: {Math.round(result * 10) / 10}
+      </Text>
 
       <View style={styles.buttons}>
         <Button title="Take Photo" onPress={openCamera} style={styles.button} />
@@ -102,9 +106,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    position: "absolute",
+    top: "10%",
+  },
   imageContainer: {
     width: 300,
     height: 300,
+    borderWidth: 2,
   },
   image: {
     flex: 1,
